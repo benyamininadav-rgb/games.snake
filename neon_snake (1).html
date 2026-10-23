@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Neon Snake</title>
+<style>
+:root{--bg:#080b18;--panel:#10162a;--line:#263454;--cyan:#52e8ff;--pink:#ff58d7;--text:#e9f4ff;--muted:#91a6c8}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif}
+body{display:flex;justify-content:center;padding:18px 12px;background:radial-gradient(ellipse at 50% 0,#152044 0,transparent 55%),var(--bg)}
+.app{width:min(100%,520px)}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;color:var(--muted);font-size:12px;letter-spacing:2px}.brand{font-weight:900;color:var(--cyan);letter-spacing:3px}
+.panel{border:1px solid var(--line);background:linear-gradient(160deg,#111a32,#0c1122 70%);border-radius:18px;overflow:hidden;box-shadow:0 12px 40px #0005}
+.lobby{padding:26px 20px 22px;text-align:center;position:relative;isolation:isolate}.lobby:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(135deg,#52e8ff0b,transparent 40%,#ff58d70b)}
+.eyebrow{font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase}.title{font-size:clamp(42px,12vw,64px);line-height:1;margin:14px 0 8px;font-weight:950;letter-spacing:-3px;color:#f5fbff}.title span{color:var(--cyan)}.subtitle{color:#aabbd8;font-size:13px;letter-spacing:2px}
+.preview{height:145px;display:grid;place-items:center;margin:18px 0 20px;background:linear-gradient(180deg,#0a1024,#0b1424);border:1px solid #233657;border-radius:13px;position:relative;overflow:hidden}
+.preview:before{content:"";position:absolute;inset:0;background-image:linear-gradient(#253c5a50 1px,transparent 1px),linear-gradient(90deg,#253c5a50 1px,transparent 1px);background-size:22px 22px;opacity:.6}
+.preview svg{width:min(100%,300px);position:relative}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+.start{width:100%;border:0;border-radius:11px;padding:16px;background:var(--cyan);color:#07111c;font-weight:900;font-size:16px;letter-spacing:2px;box-shadow:0 5px 0 #2397ad;transition:transform .1s,filter .1s}.start:active{transform:translateY(3px);box-shadow:0 2px 0 #2397ad}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:17px}.stat{border:1px solid var(--line);background:#0b1224;border-radius:10px;padding:11px}.stat small{display:block;color:var(--muted);font-size:10px;letter-spacing:1.5px;margin-bottom:5px}.stat strong{font-size:14px;color:var(--pink)}
+.note{color:var(--muted);font-size:12px;line-height:1.5;margin:18px 0 0}
+.game{padding:14px;display:none}.hud{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}.hud .stat{text-align:center;padding:9px 5px}.hud strong{font-size:21px;color:var(--cyan)}.hud .stat:nth-child(2) strong{color:var(--pink)}canvas{display:block;width:100%;height:auto;aspect-ratio:1;border:1px solid #2b4268;border-radius:12px;background:#080e1d;touch-action:none}
+.controls{display:flex;gap:8px;margin:12px 0}.smallbtn{flex:1;border:1px solid #334665;border-radius:9px;background:#121d33;padding:10px 4px;font-weight:700;font-size:12px}.smallbtn:active{background:#233b5b}
+.dpad{display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(2,44px);gap:7px;justify-content:center;margin:12px auto 6px}.dpad button{border:1px solid #334665;border-radius:10px;background:#121d33;color:var(--cyan);font-size:19px}.dpad button:active{background:#24425c}.dpad .up{grid-column:2}.dpad .left{grid-column:1;grid-row:2}.dpad .down{grid-column:2;grid-row:2}.dpad .right{grid-column:3;grid-row:2}.message{min-height:20px;text-align:center;color:var(--pink);font-size:12px;margin:8px 0}.footer{font-size:10px;color:var(--muted);text-align:center;margin:12px 0 2px;line-height:1.6}.hidden{display:none!important}
+@media(min-width:500px){body{padding-top:28px}.lobby{padding:32px 28px}.preview{height:165px}}
+</style>
+</head>
+<body>
+<main class="app">
+  <div class="top"><div class="brand">N / ARCADE</div><div>GAME 001</div></div>
+  <section class="panel lobby" id="lobby">
+    <div class="eyebrow">A small game for a quick break</div>
+    <h1 class="title">NEON <span>SNAKE</span></h1>
+    <div class="subtitle">EAT · GROW · SURVIVE</div>
+    <div class="preview" aria-hidden="true">
+      <svg viewBox="0 0 300 120">
+        <path d="M42 77 H88 V40 H143 V77 H195" fill="none" stroke="#1bd5c9" stroke-width="19" stroke-linejoin="round" stroke-linecap="round" opacity=".2"/>
+        <path d="M42 77 H88 V40 H143 V77 H195" fill="none" stroke="#4de7c4" stroke-width="13" stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="M42 77 H88 V40 H143 V77 H195" fill="none" stroke="#c1ffe9" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+        <rect x="187" y="61" width="42" height="32" rx="12" fill="#52e8ff" stroke="#b9f8ff" stroke-width="2"/>
+        <circle cx="214" cy="70" r="3" fill="#10223b"/><circle cx="222" cy="70" r="3" fill="#10223b"/>
+        <path d="M213 81 Q218 85 224 80" fill="none" stroke="#10223b" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="252" cy="29" r="7" fill="#ff58d7"/><circle cx="252" cy="29" r="12" fill="none" stroke="#ff58d7" opacity=".25"/>
+      </svg>
+    </div>
+    <button class="start" id="start">▶ &nbsp; START GAME</button>
+    <div class="stats"><div class="stat"><small>SPEED</small><strong>TURBO ×2</strong></div><div class="stat"><small>RED BONUS</small><strong>+3 POINTS</strong></div></div>
+    <p class="note">Use arrow keys, WASD, swipe, or the buttons below.<br>Red bonus dots appear every 15 seconds and vanish after 7.</p>
+  </section>
+
+  <section class="panel game" id="game">
+    <div class="hud">
+      <div class="stat"><small>SCORE</small><strong id="score">0</strong></div>
+      <div class="stat"><small>BEST</small><strong id="best">0</strong></div>
+      <div class="stat"><small>LENGTH</small><strong id="length">4</strong></div>
+    </div>
+    <canvas id="board" width="400" height="400" aria-label="Snake game board"></canvas>
+    <div class="controls"><button class="smallbtn" id="pause">Ⅱ PAUSE</button><button class="smallbtn" id="restart">↻ RESTART</button><button class="smallbtn" id="home">⌂ HOME</button></div>
+    <div class="dpad"><button class="up" data-dir="up" aria-label="Up">▲</button><button class="left" data-dir="left" aria-label="Left">◀</button><button class="down" data-dir="down" aria-label="Down">▼</button><button class="right" data-dir="right" aria-label="Right">▶</button></div>
+    <div class="message" id="message"></div>
+    <div class="footer">APPLE +1 &nbsp; · &nbsp; RED BONUS +3 SCORE / +3 LENGTH &nbsp; · &nbsp; BONUS EXPIRES IN 7S</div>
+  </section>
+</main>
+<script>
+(() => {
+ const $=id=>document.getElementById(id), canvas=$('board'),ctx=canvas.getContext('2d');
+ const N=25, CELL=16, SPEED=150;
+ let snake,dir,next,food,bonus,bonusAt,lastBonus,score,best=0,running=false,paused=false,over=false,timer=null,swipe=null;
+ function randomCell(){let p;do{p={x:Math.floor(Math.random()*N),y:Math.floor(Math.random()*N)}}while(snake.some(s=>s.x===p.x&&s.y===p.y)|| (food&&p.x===food.x&&p.y===food.y)||(bonus&&p.x===bonus.x&&p.y===bonus.y));return p}
+ function init(){clearInterval(timer);snake=[{x:7,y:12},{x:6,y:12},{x:5,y:12},{x:4,y:12}];dir={x:1,y:0};next={x:1,y:0};score=0;food=null;bonus=null;lastBonus=Date.now();food=randomCell();running=true;paused=false;over=false;$('message').textContent='';$('pause').textContent='Ⅱ PAUSE';stats();draw();timer=setInterval(tick,SPEED)}
+ function stats(){$('score').textContent=score;$('best').textContent=best;$('length').textContent=snake.length}
+ function setDir(name){if(!running||paused||over)return;const d={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}}[name];if(d&&!(d.x===-dir.x&&d.y===-dir.y))next=d}
+ function tick(){if(!running||paused||over)return;dir=next;const h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};if(h.x<0||h.x>=N||h.y<0||h.y>=N||snake.slice(0,-1).some(p=>p.x===h.x&&p.y===h.y)){over=true;clearInterval(timer);$('message').textContent='Game over — press Restart to try again';draw();return}
+ snake.unshift(h);let grew=false;
+ if(h.x===food.x&&h.y===food.y){score++;food=randomCell();grew=true}
+ if(bonus&&h.x===bonus.x&&h.y===bonus.y){score+=3;for(let i=0;i<3;i++)snake.push({...snake[snake.length-1]});bonus=null;grew=true;$('message').textContent='Bonus collected! +3';}
+ if(!grew)snake.pop();
+ const now=Date.now();if(!bonus&&now-lastBonus>=15000){bonus=randomCell();bonusAt=now;lastBonus=now}
+ if(bonus&&now-bonusAt>=7000)bonus=null;
+ best=Math.max(best,score);stats();draw()
+ }
+ function circle(x,y,r,color,glow){ctx.save();ctx.shadowColor=color;ctx.shadowBlur=glow;ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.restore()}
+ function draw(){const size=canvas.width,cell=size/N;ctx.fillStyle='#080e1d';ctx.fillRect(0,0,size,size);ctx.strokeStyle='#182746';ctx.lineWidth=1;
+ for(let i=0;i<=N;i++){ctx.beginPath();ctx.moveTo(i*cell,0);ctx.lineTo(i*cell,size);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i*cell);ctx.lineTo(size,i*cell);ctx.stroke()}
+ if(food) {circle((food.x+.5)*cell,(food.y+.5)*cell,cell*.29,'#ff6b86',10);circle((food.x+.5)*cell-2,(food.y+.5)*cell-2,cell*.09,'#fff0f4',0)}
+ if(bonus){circle((bonus.x+.5)*cell,(bonus.y+.5)*cell,cell*.34,'#ff315c',19);circle((bonus.x+.5)*cell,(bonus.y+.5)*cell,cell*.15,'#ffe6ee',4)}
+ snake.forEach((p,i)=>{const x=p.x*cell+1.5,y=p.y*cell+1.5,r=cell*.28;ctx.save();ctx.shadowColor=i===0?'#52e8ff':'#35e8a2';ctx.shadowBlur=i===0?13:5;ctx.fillStyle=i===0?'#52e8ff':`hsl(${151-i*2},78%,${53-i*.5}%)`;ctx.beginPath();ctx.roundRect(x,y,cell-3,cell-3,r);ctx.fill();ctx.restore()});
+ const h=snake[0],cx=(h.x+.5)*cell,cy=(h.y+.5)*cell;const ex=dir.x*2,ey=dir.y*2;ctx.fillStyle='#092034';ctx.beginPath();ctx.arc(cx-3+ex,cy-3+ey,1.6,0,7);ctx.arc(cx+3+ex,cy-3+ey,1.6,0,7);ctx.fill();ctx.strokeStyle='#092034';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(cx+ex,cy+2+ey,3,.2,Math.PI-.2);ctx.stroke();
+ if(paused||over){ctx.fillStyle='#050a17c9';ctx.fillRect(0,0,size,size);ctx.textAlign='center';ctx.fillStyle='#f2fbff';ctx.font='bold 24px system-ui';ctx.fillText(paused?'PAUSED':'GAME OVER',size/2,size/2)}
+ }
+ $('start').addEventListener('click',()=>{$('lobby').style.display='none';$('game').style.display='block';init()});
+ $('restart').addEventListener('click',init);
+ $('home').addEventListener('click',()=>{clearInterval(timer);running=false;$('game').style.display='none';$('lobby').style.display='block'});
+ $('pause').addEventListener('click',()=>{if(!running||over)return;paused=!paused;$('pause').textContent=paused?'▶ RESUME':'Ⅱ PAUSE';$('message').textContent=paused?'Paused':'';draw()});
+ document.querySelectorAll('[data-dir]').forEach(b=>b.addEventListener('click',()=>setDir(b.dataset.dir)));
+ window.addEventListener('keydown',e=>{const map={ArrowUp:'up',w:'up',W:'up',ArrowDown:'down',s:'down',S:'down',ArrowLeft:'left',a:'left',A:'left',ArrowRight:'right',d:'right',D:'right'};if(map[e.key]&&$('game').style.display==='block'){e.preventDefault();setDir(map[e.key])}});
+ canvas.addEventListener('touchstart',e=>{e.preventDefault();const t=e.changedTouches[0];swipe={x:t.clientX,y:t.clientY}},{passive:false});
+ canvas.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+ canvas.addEventListener('touchend',e=>{e.preventDefault();if(!swipe)return;const t=e.changedTouches[0],dx=t.clientX-swipe.x,dy=t.clientY-swipe.y;if(Math.max(Math.abs(dx),Math.abs(dy))>18)setDir(Math.abs(dx)>Math.abs(dy)?dx>0?'right':'left':dy>0?'down':'up');swipe=null},{passive:false});
+})();
+</script>
+</body>
+</html>
